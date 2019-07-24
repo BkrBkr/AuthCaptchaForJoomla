@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="plugin" version="3.1" group="system" method="upgrade">
+    <name>PLG_SYSTEM_AUTHCAPTCHA</name>
+    <version>0.0.1</version>
+    <creationDate>2019-07-24</creationDate>
+	<description>PLG_SYSTEM_AUTHCAPTCHA_PLGDETAILSDESCRIPTION</description>
+	
+	<author>Björn Kremer</author>
+    <license>http://www.gnu.org/licenses/gpl</license>
+    <copyright>Copyright (C) 2019 Björn Kremer</copyright>
+    
+    
+    <files>
+        <filename plugin="authcaptcha">authcaptcha.php</filename>
+        <filename plugin="authcaptcha">index.html</filename>
+
+    </files>
+	<languages folder="language">
+        <language tag="en-GB">en-GB/en-GB.plg_system_authcaptcha.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_system_authcaptcha.sys.ini</language>
+    </languages>
+   
+    <updateservers>
+    </updateservers>
+    <config>
+    </config>
+</extension>
