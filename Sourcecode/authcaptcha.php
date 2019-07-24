@@ -7,7 +7,7 @@
  *
  * @license        GNU/GPL
  *	 JoomlaAuthCaptcha (OR AuthCaptcha) - This Joomla System Plugin adds a captcha challenge to all joomla login-forms
- *   Copyright (C) <year>  <name of author>
+ *   Copyright (C) 2019 Björn Kremer
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
