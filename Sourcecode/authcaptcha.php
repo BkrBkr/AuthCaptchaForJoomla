@@ -95,6 +95,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 	}
 	private function redirect()
 	{
+		
 		$currentURI=JUri::current()."?captchaError=1";
 
 		header('Location: ' . $currentURI);
@@ -131,6 +132,10 @@ class PlgSystemAuthCaptcha extends JPlugin
 						$captcha = $this->dispatcher->trigger('onDisplay', array(null, 'dynamic_captcha_loginform', 'required'));
 						
 						if (!empty($captcha) && !empty($captcha[0])) {
+							
+							if(strpos($captcha[0], "g-recaptcha") !== false && strpos($captcha[0], "invisible") === false){
+								$captcha[0]=str_replace("></div>",' style="transform:scale(0.6);-webkit-transform:scale(0.6);transform-origin:0 0;-webkit-transform-origin:0 0;"></div>',$captcha[0]);
+							}
 							$body=substr_replace($body, $captcha[0], $position, 0);
 						}
 						
