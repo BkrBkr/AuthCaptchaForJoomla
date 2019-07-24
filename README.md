@@ -10,7 +10,7 @@ Warning: This Plugin is an alpha version and at the moment not recommended for p
 
 1. Enable a captcha-plugin in Joomla
 
-For details about joomla captcha plugins please refer to the Joomla documentation or google.
+For details about joomla captcha plugins, please refer to the Joomla documentation or google.
 
 2. Install and enable this plugin.
 
@@ -27,6 +27,7 @@ This Plugin is an alpha version. Open Todos:
 2. Add missing translations
 3. Add code comments
 4. Fix bug displaying error message 
+5. Add update-server-url to package
 
 # Disclaimer
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
