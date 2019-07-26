@@ -26,8 +26,6 @@ This Plugin is an alpha version. Open Todos:
 1. Improve captcha position and scale
 2. Add missing translations
 3. Add code comments
-4. Fix bug displaying error message 
-5. Add update-server-url to package
 
 # Disclaimer
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
