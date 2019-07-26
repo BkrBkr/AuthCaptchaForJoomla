@@ -21,6 +21,7 @@
     </languages>
    
     <updateservers>
+		<server type="extension" priority="1" name="PLG_SYSTEM_AUTHCAPTCHA">https://raw.githubusercontent.com/BkrBkr/JoomlaAuthCaptcha/master/update.xml</server>
     </updateservers>
     <config>
     </config>
