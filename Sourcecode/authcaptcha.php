@@ -68,9 +68,6 @@ class PlgSystemAuthCaptcha extends JPlugin
     public function onAfterRoute()
     {
 	
-		if(!empty($this->request->getCmd("captchaError")))
-			$this->app->enqueueMessage(JText::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'), 'error');
-		
 		if($this->getCaptchaPluginIncludeRequired()){
 			JPluginHelper::importPlugin('captcha');
 			$this->dispatcher->trigger('onInit', 'dynamic_captcha_loginform');
@@ -96,11 +93,9 @@ class PlgSystemAuthCaptcha extends JPlugin
 	private function redirect()
 	{
 		
-		$currentURI=JUri::current()."?captchaError=1";
-
-		header('Location: ' . $currentURI);
-		echo '<!DOCTYPE html><html><head><script type="text/javascript">window.location = "'.htmlentities ($currentURI).'"</script></head><body></body></html>';
-
+		$this->app->enqueueMessage(JText::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'), 'error');
+		
+		$this->app->redirect(JUri::current());
 		jexit(JText::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'));
 		die("Invalid Captcha");
 	}
