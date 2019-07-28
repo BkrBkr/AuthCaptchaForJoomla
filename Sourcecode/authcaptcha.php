@@ -115,8 +115,22 @@ class PlgSystemAuthCaptcha extends JPlugin
 				$positions=array();
 				foreach($matches["formAll"] as $idx=>$formAll) {
 
-					if(!empty($formAll[0]) && (strpos($formAll[0], "user.login") !== false ||strpos($formAll[0], "com_login") !== false ) && preg_match($passwordFieldRegex,$formAll[0]))
-						$positions[] =$matches["formBody"][$idx][1];
+					if(!empty($formAll[0]) && (strpos($formAll[0], "user.login") !== false ||strpos($formAll[0], "com_login") !== false ) && preg_match($passwordFieldRegex,$formAll[0])){
+						
+						$initPos=$matches["formBody"][$idx][1];
+						
+						$pos=$this->matchLoginModule($matches["formBody"][$idx][0]) + $initPos;
+						if($pos<=$initPos)
+							$pos=$this->matchLoginComponent($matches["formBody"][$idx][0]) +$initPos;
+						
+						if($pos<=$initPos)
+							$pos=$this->matchLoginAdmin($matches["formBody"][$idx][0]) +$initPos;
+						
+						
+						$positions[] =$pos;
+					
+						
+					}
 			
 				}
 
@@ -143,7 +157,46 @@ class PlgSystemAuthCaptcha extends JPlugin
      
         }
     }
+	private function matchLoginModule($formBody){
+		$moduleRegex="/(?<modulematch>(?<=<div)[^>]+form-login-password.*?<\/div>\s*<\/div>\s*<\/div>)/si";
+
+		if(preg_match($moduleRegex, $formBody, $moduleMatch, PREG_OFFSET_CAPTURE)){
+			return strlen($moduleMatch["modulematch"][0]) + $moduleMatch["modulematch"][1];
+			
+		}
+		return 0;
+	
+	}
+	
+	private function matchLoginComponent($formBody){
+	
+		$componentRegex="/(?<componentmatch>(?<=<div)[^>]+control-group.*?<\/div>\s*<\s*div[^>]+>\s*<\s*input[^>]+type=\"password\"[^>]+>\s*<\/div>\s*<\/div>)/si";
+
+		if(preg_match($componentRegex, $formBody, $componentMatch, PREG_OFFSET_CAPTURE)){
+				
+			return strlen($componentMatch["componentmatch"][0]) + $componentMatch["componentmatch"][1];
+			
+		}
+		return 0;
 	
 	
+	}
+
+	private function matchLoginAdmin($formBody){
+	
+		$adminRegex="/(?<adminmatch>(?<=<div)[^>]+control-group.*?[^>]+>.*?<input[^>]+type=\"password\"[^>]+>.*?<\/div>\s*<\/div>\s*<\/div>)/si";
+
+		if(preg_match($adminRegex, $formBody, $admiMatch, PREG_OFFSET_CAPTURE)){
+				
+			return strlen($admiMatch["adminmatch"][0]) + $admiMatch["adminmatch"][1];
+			
+		}
+		return 0;
+	
+	
+	}
+	
+
+
 
 }
