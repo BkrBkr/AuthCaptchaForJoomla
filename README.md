@@ -8,7 +8,7 @@ Warning: This Plugin is an alpha version and at the moment not recommended for p
 
 # Installation
 
-1. Enable a captcha-plugin in Joomla
+1. Enable a captcha-plugin in Joomla (e.g. recaptcha)
 
 For details about joomla captcha plugins, please refer to the Joomla documentation or google.
 
