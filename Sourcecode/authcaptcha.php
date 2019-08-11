@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @Copyright
  * @package        JoomlaAuthCaptcha
@@ -26,188 +27,182 @@ defined('_JEXEC') || die('Restricted access');
 
 class PlgSystemAuthCaptcha extends JPlugin
 {
-    private $app;
+	private $app;
 	private $dispatcher;
-    private $request;
+	private $request;
 	private $config;
 	protected $autoloadLanguage = true;
 
-	
 
-    function __construct(&$subject, $config)
-    {
+
+	function __construct(&$subject, $config)
+	{
 		parent::__construct($subject, $config);
-        $this->app = JFactory::getApplication();
+		$this->app = JFactory::getApplication();
 		$this->request = $this->app->input;
-		$this->dispatcher=JDispatcher::getInstance();
-		$this->config=JFactory::getConfig();
+		$this->dispatcher = JDispatcher::getInstance();
+		$this->config = JFactory::getConfig();
 	}
-	
-	private function getCaptchaPluginIncludeRequired(){
-		if($this->config->get('captcha')=='0')
+
+	private function getCaptchaPluginIncludeRequired()
+	{
+		if ($this->config->get('captcha') == '0')
 			return false;
-		
+
 		$option = $this->request->getCmd('option');
-        $view = $this->request->getCmd('view');
-		
+		$view = $this->request->getCmd('view');
+
 		return  $this->isModLogin() || $this->isUserLogin($option, $view) || $this->isAdminLogin($option, $view);
 	}
-	
-	private function isModLogin(){
+
+	private function isModLogin()
+	{
 		return JModuleHelper::isEnabled("mod_login");
 	}
-	
-	private function isUserLogin($option, $view){
-		return ($option=="com_users" && $view=="login");
-	}
-	
-	private function isAdminLogin($option, $view){
-		return  ($option=="com_login" && $view=="login");
+
+	private function isUserLogin($option, $view)
+	{
+		return ($option == "com_users" && $view == "login");
 	}
 
-    public function onAfterRoute()
-    {
-	
-		if($this->getCaptchaPluginIncludeRequired()){
+	private function isAdminLogin($option, $view)
+	{
+		return ($option == "com_login" && $view == "login");
+	}
+
+	public function onAfterRoute()
+	{
+
+		if ($this->getCaptchaPluginIncludeRequired()) {
 			JPluginHelper::importPlugin('captcha');
 			$this->dispatcher->trigger('onInit', 'dynamic_captcha_loginform');
 
 			$option = $this->request->getCmd('option');
 			$task = $this->request->getCmd('task');
-			
+
 			if (($option == 'com_users' && $task == 'user.login') || ($option == 'com_login' && $task == 'login')) {
-	
-				$captchaResp=$this->request->getCmd('g-captcha-response');
-				try{
-					$res = $this->dispatcher->trigger("onCheckAnswer",$captchaResp);
-					if(empty($res) || empty($res[0]) || !$res[0]){
-						 $this->redirect();
+
+				try {
+					$res = $this->dispatcher->trigger("onCheckAnswer");
+					if (empty($res) || empty($res[0]) || !$res[0]) {
+						$this->redirect();
 					}
 				} catch (Exception $e) {
 					$this->redirect();
 				}
-				
 			}
 		}
 	}
 	private function redirect()
 	{
-		
+
 		$this->app->enqueueMessage(JText::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'), 'error');
-		
+
 		$this->app->redirect(JUri::current());
 		jexit(JText::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'));
 		die("Invalid Captcha"); //Should not be reached
 	}
 
-    public function onAfterRender()
-    {
+	public function onAfterRender()
+	{
 
-        if ($this->getCaptchaPluginIncludeRequired()) {
+		if ($this->getCaptchaPluginIncludeRequired()) {
 
-            $body = $this->app->getBody();
-			
-			$formRegex="/(?<=<form)(?<formAll>[^>]+>(?<formBody>.*?))(?=<\/\s*form\s*>)/si";
-			$passwordFieldRegex="/<\s*input[^>]+type\s*=[\"']+password/si";
-			if(preg_match_all($formRegex, $body, $matches, PREG_OFFSET_CAPTURE)){
-			
-				if(count($matches["formAll"])>0){
-					for($idx=count($matches["formAll"])-1;$idx>=0;$idx--){
-						
+			$body = $this->app->getBody();
+
+			$formRegex = "/(?<=<form)(?<formAll>[^>]+>(?<formBody>.*?))(?=<\/\s*form\s*>)/si";
+			$passwordFieldRegex = "/<\s*input[^>]+type\s*=[\"']+password/si";
+			if (preg_match_all($formRegex, $body, $matches, PREG_OFFSET_CAPTURE)) {
+
+				if (count($matches["formAll"]) > 0) {
+					for ($idx = count($matches["formAll"]) - 1; $idx >= 0; $idx--) {
+
 						$formAll =  $matches["formAll"][$idx];
 
-						if(!empty($formAll[0]) && preg_match($passwordFieldRegex,$formAll[0]) && (strpos($formAll[0], "user.login") !== false ||strpos($formAll[0], "com_login") !== false )){
-							
-							$offset=$matches["formBody"][$idx][1];
-							$formBody=$matches["formBody"][$idx][0];
-							
-							$this->matchLoginModule($formBody,$offset,$body)|| 
-							$this->matchLoginComponent($formBody,$offset,$body) || 
-							$this->matchLoginAdmin($formBody,$offset,$body) ||
-							$this->matchLoginFallback($formBody,$offset,$body);
+						if (!empty($formAll[0]) && preg_match($passwordFieldRegex, $formAll[0]) && (strpos($formAll[0], "user.login") !== false || strpos($formAll[0], "com_login") !== false)) {
 
+							$offset = $matches["formBody"][$idx][1];
+							$formBody = $matches["formBody"][$idx][0];
+
+							$this->matchLoginModule($formBody, $offset, $body) ||
+								$this->matchLoginComponent($formBody, $offset, $body) ||
+								$this->matchLoginAdmin($formBody, $offset, $body) ||
+								$this->matchLoginFallback($formBody, $offset, $body);
 						}
-				
 					}
 					$this->app->setBody($body);
 				}
-
-			}	
-			
-     
-        }
-    }
-	private function matchLoginModule($formBody,$offset,&$body){
-		
-		$moduleRegex="/(?<match>(?<=<div)[^>]+form-login-password.*?<\/div>\s*<\/div>\s*<\/div>)/si";
-		$praefix="\n<div id=\"form-login-captcha\" class=\"control-group\">\n<div class=\"controls\">\n<div class=\"input-prepend\">\n";
-		$suffix="\n</div>\n</div>\n</div>\n";
-		$scale=0.58;
-		
-		return $this->addCaptcha($moduleRegex,$formBody,$offset,$body,$praefix,$suffix,$scale);
+			}
+		}
 	}
-	
+	private function matchLoginModule($formBody, $offset, &$body)
+	{
 
-	
-	private function matchLoginComponent($formBody,$offset,&$body){
+		$moduleRegex = "/(?<match>(?<=<div)[^>]+form-login-password.*?<\/div>\s*<\/div>\s*<\/div>)/si";
+		$praefix = "\n<div id=\"form-login-captcha\" class=\"control-group\">\n<div class=\"controls\">\n<div class=\"input-prepend\">\n";
+		$suffix = "\n</div>\n</div>\n</div>\n";
+		$scale = 0.58;
 
-		$componentRegex="/(?<match>(?<=<div)[^>]+control-group.*?<\/div>\s*<\s*div[^>]+>\s*<\s*input[^>]+type=\"password\"[^>]+>\s*<\/div>\s*<\/div>)/si";
-		$praefix="\n<div class=\"control-group\">\n<div class=\"control-label\"></div>\n<div class=\"controls\">\n";
-		$suffix="\n</div>\n</div>\n";
-		$scale=0.73;
-		
-		return $this->addCaptcha($componentRegex,$formBody,$offset,$body,$praefix,$suffix,$scale);
-	
-	
+		return $this->addCaptcha($moduleRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
 	}
 
-	private function matchLoginAdmin($formBody,$offset,&$body){
 
-		$adminRegex="/(?<match>(?<=<div)[^>]+control-group.*?[^>]+>.*?<input[^>]+type=\"password\"[^>]+>.*?<\/div>\s*<\/div>\s*<\/div>)/si";
-		$praefix="\n<div class=\"control-group\">\n<div class=\"controls\">\n<div class=\"input-prepend input-append\">\n";
-		$suffix="\n</div>\n</div>\n</div>\n";
-		$scale=0.87;
-		
-		return $this->addCaptcha($adminRegex,$formBody,$offset,$body,$praefix,$suffix,$scale);
-	
-	
+
+	private function matchLoginComponent($formBody, $offset, &$body)
+	{
+
+		$componentRegex = "/(?<match>(?<=<div)[^>]+control-group.*?<\/div>\s*<\s*div[^>]+>\s*<\s*input[^>]+type=\"password\"[^>]+>\s*<\/div>\s*<\/div>)/si";
+		$praefix = "\n<div class=\"control-group\">\n<div class=\"control-label\"></div>\n<div class=\"controls\">\n";
+		$suffix = "\n</div>\n</div>\n";
+		$scale = 0.73;
+
+		return $this->addCaptcha($componentRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
 	}
-	
-	private function matchLoginFallback($formBody,$offset,&$body){
-		
-		$adminRegex="/(?<match>^)/si";
-		$praefix="";
-		$suffix="";
-		$scale=0.7;
-		
-		return $this->addCaptcha($adminRegex,$formBody,$offset,$body,$praefix,$suffix,$scale);
+
+	private function matchLoginAdmin($formBody, $offset, &$body)
+	{
+
+		$adminRegex = "/(?<match>(?<=<div)[^>]+control-group.*?[^>]+>.*?<input[^>]+type=\"password\"[^>]+>.*?<\/div>\s*<\/div>\s*<\/div>)/si";
+		$praefix = "\n<div class=\"control-group\">\n<div class=\"controls\">\n<div class=\"input-prepend input-append\">\n";
+		$suffix = "\n</div>\n</div>\n</div>\n";
+		$scale = 0.87;
+
+		return $this->addCaptcha($adminRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
 	}
-	
-	private function addCaptcha($regex,$formBody,$offset,&$body,$praefix,$suffix,$scale){
-		if(preg_match($regex, $formBody, $match, PREG_OFFSET_CAPTURE)){
-			
-			$position= strlen($match["match"][0]) + $match["match"][1];
-			
-			$captcha=$this->getCaptcha($scale);
-			$body=substr_replace($body, $praefix.$captcha.$suffix, $position+$offset, 0);
+
+	private function matchLoginFallback($formBody, $offset, &$body)
+	{
+
+		$adminRegex = "/(?<match>^)/si";
+		$praefix = "";
+		$suffix = "";
+		$scale = 0.7;
+
+		return $this->addCaptcha($adminRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
+	}
+
+	private function addCaptcha($regex, $formBody, $offset, &$body, $praefix, $suffix, $scale)
+	{
+		if (preg_match($regex, $formBody, $match, PREG_OFFSET_CAPTURE)) {
+
+			$position = strlen($match["match"][0]) + $match["match"][1];
+
+			$captcha = $this->getCaptcha($scale);
+			$body = substr_replace($body, $praefix . $captcha . $suffix, $position + $offset, 0);
 			return true;
 		}
 		return false;
-		
 	}
-	
-	private function getCaptcha($scale){
+
+	private function getCaptcha($scale)
+	{
 		$captcha = $this->dispatcher->trigger('onDisplay', array(null, 'dynamic_captcha_loginform', 'required'));
-		if(empty($captcha) || empty($captcha[0]))
+		if (empty($captcha) || empty($captcha[0]))
 			throw new UnexpectedValueException('Captcha generation failed');
-			
-		if(strpos($captcha[0], "g-recaptcha") !== false && strpos($captcha[0], "invisible") === false){
-			$captcha[0]=str_replace("></div>",' style="transform:scale('.$scale.');-webkit-transform:scale('.$scale.');transform-origin:0 0;-webkit-transform-origin:0 0;max-width:100px;max-height:80px;"></div>',$captcha[0]);
+
+		if (strpos($captcha[0], "g-recaptcha") !== false && strpos($captcha[0], "invisible") === false) {
+			$captcha[0] = str_replace("></div>", ' style="transform:scale(' . $scale . ');-webkit-transform:scale(' . $scale . ');transform-origin:0 0;-webkit-transform-origin:0 0;max-width:100px;max-height:80px;"></div>', $captcha[0]);
 		}
 		return $captcha[0];
-	
 	}
-
-
-
 }
