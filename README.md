@@ -13,9 +13,7 @@ Warning: This Plugin is an alpha version and at the moment not recommended for p
 
 # Installation
 
-1. Enable a captcha-plugin in Joomla (e.g. recaptcha)
-
-   For details about joomla captcha plugins, please refer to the Joomla documentation or google.
+1. [Enable a captcha-plugin in Joomla (e.g. recaptcha)](https://docs.joomla.org/J3.x:Google_ReCaptcha)
 2. Install and enable this plugin.
 
 # Troubleshooting
