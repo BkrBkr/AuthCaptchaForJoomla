@@ -3,8 +3,7 @@
 /**
  * @Copyright
  * @package        JoomlaAuthCaptcha
- * @author         Björn Kremer
- * @version        0.0.1
+ * @author         Björn Kremer 
  *
  * @license        GNU/GPL
  *	 JoomlaAuthCaptcha (OR AuthCaptcha) - This Joomla System Plugin adds a captcha challenge to all joomla login-forms
@@ -23,7 +22,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-defined('_JEXEC') || die('Restricted access');
+defined('_JEXEC') or die;
 
 class PlgSystemAuthCaptcha extends JPlugin
 {
@@ -44,6 +43,9 @@ class PlgSystemAuthCaptcha extends JPlugin
 		$this->config = JFactory::getConfig();
 	}
 
+	/**
+	 * Does the current page requires a captcha challenge?
+	 */
 	private function getCaptchaPluginIncludeRequired()
 	{
 		if ($this->config->get('captcha') == '0')
@@ -55,21 +57,34 @@ class PlgSystemAuthCaptcha extends JPlugin
 		return  $this->isModLogin() || $this->isUserLogin($option, $view) || $this->isAdminLogin($option, $view);
 	}
 
+	/**
+	 * Is the login-module enabled?
+	 */
 	private function isModLogin()
 	{
 		return JModuleHelper::isEnabled("mod_login");
 	}
 
+	/**
+	 * Is the current page the login component?
+	 */
 	private function isUserLogin($option, $view)
 	{
 		return ($option == "com_users" && $view == "login");
 	}
 
+	/**
+	 * Is the current page the administrator login page?
+	 */
 	private function isAdminLogin($option, $view)
 	{
 		return ($option == "com_login" && $view == "login");
 	}
 
+	/**
+	 * - Initialize the captcha plugin
+	 * - Validate the captcha response if necessary
+	 */
 	public function onAfterRoute()
 	{
 
@@ -93,6 +108,11 @@ class PlgSystemAuthCaptcha extends JPlugin
 			}
 		}
 	}
+
+	/**
+	 * Cancel the request if the captcha challenge failed.
+	 * Reload the page and display an error message
+	 */
 	private function redirect()
 	{
 
@@ -103,6 +123,9 @@ class PlgSystemAuthCaptcha extends JPlugin
 		die("Invalid Captcha"); //Should not be reached
 	}
 
+	/**
+	 * Adds the captcha control to all available login forms
+	 */
 	public function onAfterRender()
 	{
 
@@ -135,6 +158,10 @@ class PlgSystemAuthCaptcha extends JPlugin
 			}
 		}
 	}
+
+	/**
+	 * Adds the captcha control to the login modul form
+	 */
 	private function matchLoginModule($formBody, $offset, &$body)
 	{
 
@@ -147,7 +174,9 @@ class PlgSystemAuthCaptcha extends JPlugin
 	}
 
 
-
+	/**
+	 *  Adds the captcha control to the login component form
+	 */
 	private function matchLoginComponent($formBody, $offset, &$body)
 	{
 
@@ -159,6 +188,9 @@ class PlgSystemAuthCaptcha extends JPlugin
 		return $this->addCaptcha($componentRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
 	}
 
+	/**
+	 *  Adds the captcha control to the administrator login form
+	 */
 	private function matchLoginAdmin($formBody, $offset, &$body)
 	{
 
@@ -170,6 +202,9 @@ class PlgSystemAuthCaptcha extends JPlugin
 		return $this->addCaptcha($adminRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
 	}
 
+	/**
+	 * Login-Fallback
+	 */
 	private function matchLoginFallback($formBody, $offset, &$body)
 	{
 
@@ -181,6 +216,9 @@ class PlgSystemAuthCaptcha extends JPlugin
 		return $this->addCaptcha($adminRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
 	}
 
+	/**
+	 * Adds a captcha challenge to $body at the position specified by $regex and $offset
+	 */
 	private function addCaptcha($regex, $formBody, $offset, &$body, $praefix, $suffix, $scale)
 	{
 		if (preg_match($regex, $formBody, $match, PREG_OFFSET_CAPTURE)) {
@@ -194,6 +232,9 @@ class PlgSystemAuthCaptcha extends JPlugin
 		return false;
 	}
 
+	/**
+	 * Generates the captcha control 
+	 */
 	private function getCaptcha($scale)
 	{
 		$captcha = $this->dispatcher->trigger('onDisplay', array(null, 'dynamic_captcha_loginform', 'required'));
