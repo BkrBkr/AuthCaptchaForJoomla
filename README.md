@@ -25,9 +25,8 @@ You can disable the plugin via the database. Please refer to the Joomla document
 # Todo
 This Plugin is an alpha version. Open Todos:
 
-1. Add code comments
-2. Cross-Browser tests
-3. Tests
+1. Cross-Browser tests
+2. Tests
 
 # Disclaimer
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
