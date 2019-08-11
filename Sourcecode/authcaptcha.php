@@ -24,23 +24,31 @@
  */
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\Event\Dispatcher;
+use Joomla\CMS\Helper\ModuleHelper;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Version;
+
 class PlgSystemAuthCaptcha extends JPlugin
 {
 	private $app;
-	private $dispatcher;
 	private $request;
 	private $config;
 	protected $autoloadLanguage = true;
-
+	private $version;
 
 
 	function __construct(&$subject, $config)
 	{
 		parent::__construct($subject, $config);
-		$this->app = JFactory::getApplication();
+		$this->app = Factory::getApplication();
 		$this->request = $this->app->input;
-		$this->dispatcher = JDispatcher::getInstance();
-		$this->config = JFactory::getConfig();
+		$this->config = Factory::getConfig();
+		
+		$this->version = new Version();
 	}
 
 	/**
@@ -48,6 +56,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function getCaptchaPluginIncludeRequired()
 	{
+		
 		if ($this->config->get('captcha') == '0')
 			return false;
 
@@ -62,7 +71,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function isModLogin()
 	{
-		return JModuleHelper::isEnabled("mod_login");
+		return ModuleHelper::isEnabled("mod_login");
 	}
 
 	/**
@@ -89,8 +98,8 @@ class PlgSystemAuthCaptcha extends JPlugin
 	{
 
 		if ($this->getCaptchaPluginIncludeRequired()) {
-			JPluginHelper::importPlugin('captcha');
-			$this->dispatcher->trigger('onInit', 'dynamic_captcha_loginform');
+			PluginHelper::importPlugin('captcha');
+			$this->app->triggerEvent('onInit');
 
 			$option = $this->request->getCmd('option');
 			$task = $this->request->getCmd('task');
@@ -98,7 +107,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 			if (($option == 'com_users' && $task == 'user.login') || ($option == 'com_login' && $task == 'login')) {
 
 				try {
-					$res = $this->dispatcher->trigger("onCheckAnswer");
+					$res = $this->app->triggerEvent("onCheckAnswer");
 					if (empty($res) || empty($res[0]) || !$res[0]) {
 						$this->redirect();
 					}
@@ -116,10 +125,10 @@ class PlgSystemAuthCaptcha extends JPlugin
 	private function redirect()
 	{
 
-		$this->app->enqueueMessage(JText::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'), 'error');
+		$this->app->enqueueMessage(Text::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'), 'error');
 
-		$this->app->redirect(JUri::current());
-		jexit(JText::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'));
+		$this->app->redirect(Uri::current());
+		jexit(Text::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'));
 		die("Invalid Captcha"); //Should not be reached
 	}
 
@@ -166,8 +175,18 @@ class PlgSystemAuthCaptcha extends JPlugin
 	{
 
 		$moduleRegex = "/(?<match>(?<=<div)[^>]+form-login-password.*?<\/div>\s*<\/div>\s*<\/div>)/si";
-		$praefix = "\n<div id=\"form-login-captcha\" class=\"control-group\">\n<div class=\"controls\">\n<div class=\"input-prepend\">\n";
-		$suffix = "\n</div>\n</div>\n</div>\n";
+		
+		if($this->version::MAJOR_VERSION==4){
+		
+			$praefix = "\n<div class=\"com-users-login__input control-group\"><div class=\"controls\"><div class=\"captcha-group\"><div class=\"input-group\">\n";
+			$suffix = "\n</div>\n</div>\n</div>\n";
+			
+
+		}else{
+			$praefix = "\n<div id=\"form-login-captcha\" class=\"control-group\">\n<div class=\"controls\">\n<div class=\"input-prepend\">\n";
+			$suffix = "\n</div>\n</div>\n</div>\n";
+		}
+		
 		$scale = 0.58;
 
 		return $this->addCaptcha($moduleRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
@@ -179,10 +198,18 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function matchLoginComponent($formBody, $offset, &$body)
 	{
+		
+		
+		if($this->version::MAJOR_VERSION==4){
+			$componentRegex = "/(?<=<div)(?<match>[^>]+mod-login__password[^>]+>.*?(?=<\/\s*div\s*>)\s*<\/div>\s*<\/div>)/si";
+			$praefix = "\n<div class=\"mod-login__captcha form-group\"><div class=\"input-group\">\n";
+			$suffix = "\n</div>\n</div>\n";
+		}else{
+			$componentRegex = "/(?<match>(?<=<div)[^>]+control-group.*?<\/div>\s*<\s*div[^>]+>\s*<\s*input[^>]+type=\"password\"[^>]+>\s*<\/div>\s*<\/div>)/si";
+			$praefix = "\n<div class=\"control-group\">\n<div class=\"control-label\"></div>\n<div class=\"controls\">\n";
+			$suffix = "\n</div>\n</div>\n";
+		}
 
-		$componentRegex = "/(?<match>(?<=<div)[^>]+control-group.*?<\/div>\s*<\s*div[^>]+>\s*<\s*input[^>]+type=\"password\"[^>]+>\s*<\/div>\s*<\/div>)/si";
-		$praefix = "\n<div class=\"control-group\">\n<div class=\"control-label\"></div>\n<div class=\"controls\">\n";
-		$suffix = "\n</div>\n</div>\n";
 		$scale = 0.73;
 
 		return $this->addCaptcha($componentRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
@@ -193,6 +220,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function matchLoginAdmin($formBody, $offset, &$body)
 	{
+		return false;
 
 		$adminRegex = "/(?<match>(?<=<div)[^>]+control-group.*?[^>]+>.*?<input[^>]+type=\"password\"[^>]+>.*?<\/div>\s*<\/div>\s*<\/div>)/si";
 		$praefix = "\n<div class=\"control-group\">\n<div class=\"controls\">\n<div class=\"input-prepend input-append\">\n";
@@ -227,6 +255,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 
 			$captcha = $this->getCaptcha($scale);
 			$body = substr_replace($body, $praefix . $captcha . $suffix, $position + $offset, 0);
+	
 			return true;
 		}
 		return false;
@@ -237,7 +266,8 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function getCaptcha($scale)
 	{
-		$captcha = $this->dispatcher->trigger('onDisplay', array(null, 'dynamic_captcha_loginform', 'required'));
+		$captcha = $this->app->triggerEvent('onDisplay');
+	
 		if (empty($captcha) || empty($captcha[0]))
 			throw new UnexpectedValueException('Captcha generation failed');
 
