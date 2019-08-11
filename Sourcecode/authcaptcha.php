@@ -173,21 +173,23 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function matchLoginModule($formBody, $offset, &$body)
 	{
+	
 
-		$moduleRegex = "/(?<match>(?<=<div)[^>]+form-login-password.*?<\/div>\s*<\/div>\s*<\/div>)/si";
+		
 		
 		if($this->version::MAJOR_VERSION==4){
-		
-			$praefix = "\n<div class=\"com-users-login__input control-group\"><div class=\"controls\"><div class=\"captcha-group\"><div class=\"input-group\">\n";
+			$moduleRegex = "/(?<match>(?<=<div)[^>]+control-group.*?[^>]+>.*?<input[^>]+type=\"password\"[^>]+>.*?<\/div>\s*<\/div>\s*<\/div>)/si";
+			$praefix = "\n<div class=\"com-users-login__input control-group\">\n<div class=\"controls\"><div class=\"captcha-group\">\n<div class=\"input-group\">\n";
 			$suffix = "\n</div>\n</div>\n</div>\n";
-			
-
+			$scale = 0.79;
 		}else{
+			$moduleRegex = "/(?<match>(?<=<div)[^>]+form-login-password.*?<\/div>\s*<\/div>\s*<\/div>)/si";
 			$praefix = "\n<div id=\"form-login-captcha\" class=\"control-group\">\n<div class=\"controls\">\n<div class=\"input-prepend\">\n";
 			$suffix = "\n</div>\n</div>\n</div>\n";
+			$scale = 0.58;
 		}
 		
-		$scale = 0.58;
+		
 
 		return $this->addCaptcha($moduleRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
 	}
@@ -202,7 +204,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 		
 		if($this->version::MAJOR_VERSION==4){
 			$componentRegex = "/(?<=<div)(?<match>[^>]+mod-login__password[^>]+>.*?(?=<\/\s*div\s*>)\s*<\/div>\s*<\/div>)/si";
-			$praefix = "\n<div class=\"mod-login__captcha form-group\"><div class=\"input-group\">\n";
+			$praefix = "\n<div class=\"mod-login__captcha form-group\">\n<div class=\"input-group\">\n";
 			$suffix = "\n</div>\n</div>\n";
 		}else{
 			$componentRegex = "/(?<match>(?<=<div)[^>]+control-group.*?<\/div>\s*<\s*div[^>]+>\s*<\s*input[^>]+type=\"password\"[^>]+>\s*<\/div>\s*<\/div>)/si";
@@ -220,11 +222,20 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function matchLoginAdmin($formBody, $offset, &$body)
 	{
-		return false;
+		
+		
+		
+		
+		if($this->version::MAJOR_VERSION==4){
+			$adminRegex = "/(?<match><input\s*name=\"passwd\"\s*id=\"mod-login-password\"[^>]+>\s*<\/div>\s*<\/div>)/si";
+			$praefix = "\n<div class=\"form-group\">\n<div class=\"input-group\">\n";
+			$suffix = "\n</div>\n</div>\n";
+		}else{
+			$adminRegex = "/(?<match>(?<=<div)[^>]+control-group.*?[^>]+>.*?<input[^>]+type=\"password\"[^>]+>.*?<\/div>\s*<\/div>\s*<\/div>)/si";
+			$praefix = "\n<div class=\"control-group\">\n<div class=\"controls\">\n<div class=\"input-prepend input-append\">\n";
+			$suffix = "\n</div>\n</div>\n</div>\n";
+		}
 
-		$adminRegex = "/(?<match>(?<=<div)[^>]+control-group.*?[^>]+>.*?<input[^>]+type=\"password\"[^>]+>.*?<\/div>\s*<\/div>\s*<\/div>)/si";
-		$praefix = "\n<div class=\"control-group\">\n<div class=\"controls\">\n<div class=\"input-prepend input-append\">\n";
-		$suffix = "\n</div>\n</div>\n</div>\n";
 		$scale = 0.87;
 
 		return $this->addCaptcha($adminRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
@@ -271,7 +282,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 		if (empty($captcha) || empty($captcha[0]))
 			throw new UnexpectedValueException('Captcha generation failed');
 
-		if (strpos($captcha[0], "g-recaptcha") !== false && strpos($captcha[0], "invisible") === false) {
+		if (strpos($captcha[0], "g-recaptcha") !== false && strpos($captcha[0], "invisible") === false && $scale!=null) {
 			$captcha[0] = str_replace("></div>", ' style="transform:scale(' . $scale . ');-webkit-transform:scale(' . $scale . ');transform-origin:0 0;-webkit-transform-origin:0 0;max-width:100px;max-height:80px;"></div>', $captcha[0]);
 		}
 		return $captcha[0];
