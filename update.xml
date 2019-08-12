@@ -7,11 +7,11 @@
 		<type>plugin</type>
 		<folder>system</folder>
 		<client>site</client>
-		<version>0.0.3</version>
+		<version>0.5.0</version>
 		<infourl>https://github.com/BkrBkr/JoomlaAuthCaptcha</infourl>
 
 		<downloads>
-			<downloadurl type="full" format="zip">https://github.com/BkrBkr/JoomlaAuthCaptcha/releases/download/0.0.3/authcaptcha.zip</downloadurl>
+			<downloadurl type="full" format="zip">https://github.com/BkrBkr/JoomlaAuthCaptcha/releases/download/0.5.0/authcaptcha.zip</downloadurl>
 		</downloads>
 		<tags>
 			<tag>stable</tag>
@@ -19,6 +19,27 @@
 		<maintainer>Björn Kremer</maintainer>
 		<maintainerurl>https://github.com/BkrBkr/JoomlaAuthCaptcha</maintainerurl>
 		<targetplatform name="joomla" version="3.*" />
+
+	</update>
+	<update>
+		<name>PLG_SYSTEM_AUTHCAPTCHA</name>
+		<description>This Joomla System Plugin adds a captcha challenge to all Joomla login-forms.</description>
+		<element>authcaptcha</element>
+		<type>plugin</type>
+		<folder>system</folder>
+		<client>site</client>
+		<version>0.5.0</version>
+		<infourl>https://github.com/BkrBkr/JoomlaAuthCaptcha</infourl>
+
+		<downloads>
+			<downloadurl type="full" format="zip">https://github.com/BkrBkr/JoomlaAuthCaptcha/releases/download/0.5.0/authcaptcha.zip</downloadurl>
+		</downloads>
+		<tags>
+			<tag>stable</tag>
+		</tags>
+		<maintainer>Björn Kremer</maintainer>
+		<maintainerurl>https://github.com/BkrBkr/JoomlaAuthCaptcha</maintainerurl>
+		<targetplatform name="joomla" version="4.*" />
 
 	</update>
 </updates>
