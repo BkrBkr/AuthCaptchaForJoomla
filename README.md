@@ -5,15 +5,15 @@ Joomla has no built-in BruteForce protection. This Joomla System plugin fills th
 
 
 * It works with the default Joomla login-component, the default Joomla login-module and the administrator page. 
-* Tested with the recaptcha-plugins shipped by Google.
+* Tested with the recaptcha-plugins shipped by Joomla.
 
-If you'd like to use other common login-components or other common captcha-plugins please feel free to open an issue. If you have problems with common templates please open an issue, too. (Only free and open source components, ...)
+If you want to use other common login components or other common captcha plugins, you are welcome to open an issue. If you have problems with common templates, please also open an issue. (Only free and open source components, ....)
 
 Warning: This Plugin is an alpha version and at the moment not recommended for productive use.
 
 # Installation
 
-1. [Enable a captcha-plugin in Joomla (e.g. recaptcha)](https://docs.joomla.org/J3.x:Google_ReCaptcha)
+1. [Configure and enable a captcha-plugin in Joomla (e.g. recaptcha)](https://docs.joomla.org/J3.x:Google_ReCaptcha)
 2. Install and enable this plugin.
 
 # Troubleshooting
