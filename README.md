@@ -22,11 +22,5 @@ Warning: This Plugin is an alpha version and at the moment not recommended for p
 
 You can disable the plugin via the database. Please refer to the Joomla documentation or google.
 
-# Todo
-This Plugin is an alpha version. Open Todos:
-
-1. Cross-Browser tests
-2. Tests
-
 # Disclaimer
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
