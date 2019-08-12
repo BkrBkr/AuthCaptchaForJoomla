@@ -9,7 +9,7 @@ Joomla has no built-in BruteForce protection. This Joomla System plugin fills th
 
 If you want to use other common login components or other common captcha plugins, you are welcome to open an issue. If you have problems with common templates, please also open an issue. (Only free and open source components, ....)
 
-Warning: This Plugin is an alpha version and at the moment not recommended for productive use.
+Joomla 4 ready!
 
 # Installation
 
