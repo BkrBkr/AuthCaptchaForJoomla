@@ -55,7 +55,11 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function getCaptchaPluginIncludeRequired()
 	{
-		if ($this->config->get('captcha') == '0')
+		$captchaConfig=$this->config->get('captcha');
+		if (empty($captchaConfig) || $captchaConfig == '0' || $captchaConfig === 0)
+			return false;
+		
+		if(!PluginHelper::isEnabled("captcha",$captchaConfig))
 			return false;
 
 		$option = $this->request->getCmd('option');
