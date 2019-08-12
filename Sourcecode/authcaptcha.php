@@ -31,6 +31,7 @@ use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Version;
+use Joomla\CMS\Cache\Cache;
 
 class PlgSystemAuthCaptcha extends JPlugin
 {
@@ -92,6 +93,15 @@ class PlgSystemAuthCaptcha extends JPlugin
 		return ($option == "com_login" && $view == "login");
 	}
 
+
+	private function clearCache(){
+		if (PluginHelper::isEnabled('system', 'cache')) {
+            $cacheId = md5(serialize(array(Uri::getInstance()->toString())));
+            $cache = Cache::getInstance('page');
+            $cache->remove($cacheId, 'page');
+        }
+	}
+
 	/**
 	 * - Initialize the captcha plugin
 	 * - Validate the captcha response if necessary
@@ -100,6 +110,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 	{
 
 		if ($this->getCaptchaPluginIncludeRequired()) {
+			$this->clearCache();
 			$this->loadLanguage();
 			PluginHelper::importPlugin('captcha');
 			$this->app->triggerEvent('onInit');
