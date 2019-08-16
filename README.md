@@ -15,6 +15,7 @@ Joomla 4 ready!
 
 1. [Configure and enable a captcha-plugin in Joomla (e.g. recaptcha)](https://docs.joomla.org/J3.x:Google_ReCaptcha)
 2. Install and enable this plugin.
+3. Clear Joomla cache if enabled
 
 # Troubleshooting
 
