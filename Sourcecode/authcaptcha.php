@@ -56,11 +56,11 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function getCaptchaPluginIncludeRequired()
 	{
-		$captchaConfig=$this->config->get('captcha');
+		$captchaConfig = $this->config->get('captcha');
 		if (empty($captchaConfig) || $captchaConfig == '0' || $captchaConfig === 0)
 			return false;
-		
-		if(!PluginHelper::isEnabled("captcha",$captchaConfig))
+
+		if (!PluginHelper::isEnabled("captcha", $captchaConfig))
 			return false;
 
 		$option = $this->request->getCmd('option');
@@ -94,14 +94,6 @@ class PlgSystemAuthCaptcha extends JPlugin
 	}
 
 
-	private function clearCache(){
-		if (PluginHelper::isEnabled('system', 'cache')) {
-            $cacheId = md5(serialize(array(Uri::getInstance()->toString())));
-            $cache = Cache::getInstance('page');
-            $cache->remove($cacheId, 'page');
-        }
-	}
-
 	/**
 	 * - Initialize the captcha plugin
 	 * - Validate the captcha response if necessary
@@ -110,7 +102,6 @@ class PlgSystemAuthCaptcha extends JPlugin
 	{
 
 		if ($this->getCaptchaPluginIncludeRequired()) {
-			$this->clearCache();
 			$this->loadLanguage();
 			PluginHelper::importPlugin('captcha');
 			$this->app->triggerEvent('onInit');
