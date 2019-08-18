@@ -2,11 +2,11 @@
 
 /**
  * @Copyright
- * @package        JoomlaAuthCaptcha
+ * @package        AuthCaptchaForJoomla
  * @author         Björn Kremer 
  *
  * @license        GNU/GPL
- *	 JoomlaAuthCaptcha (OR AuthCaptcha) - This Joomla System Plugin adds a captcha challenge to all joomla login-forms
+ *	 AuthCaptcha for Joomla (OR short AuthCaptcha) - Is a Joomla system plugin that adds a captcha challenge to all joomla login-forms to prevent bruteforce attacks
  *   Copyright (C) 2019 Björn Kremer
  *
  *   This program is free software: you can redistribute it and/or modify
