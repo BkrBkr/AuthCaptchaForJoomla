@@ -27,5 +27,9 @@ You can find a demo website here: [https://authcaptchaforjoomla.joomla.com](http
 
 You can disable the plugin via the database. Please refer to the Joomla documentation or google.
 
+# Support
+
+Please open an issue!
+
 # Disclaimer
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
