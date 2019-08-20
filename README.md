@@ -17,9 +17,6 @@ Joomla 4 ready!
 2. Install and enable this plugin.
 3. Clear Joomla cache if enabled
 
-# Demo
-
-You can find a demo website here: [https://authcaptchaforjoomla.joomla.com](https://authcaptchaforjoomla.joomla.com)
 
 # Troubleshooting
 
