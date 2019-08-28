@@ -7,13 +7,13 @@
 		<type>plugin</type>
 		<folder>system</folder>
 		<client>site</client>
-		<version>0.5.1</version>
+		<version>1.0.0</version>
 		<infourl>https://github.com/BkrBkr/AuthCaptchaForJoomla</infourl>
 
 		<downloads>
-			<downloadurl type="full" format="zip">https://github.com/BkrBkr/AuthCaptchaForJoomla/releases/download/0.5.1/authcaptcha.zip</downloadurl>
+			<downloadurl type="full" format="zip">https://github.com/BkrBkr/AuthCaptchaForJoomla/releases/download/1.0.0/authcaptcha.zip</downloadurl>
 		</downloads>
-		<sha256>591424fe2b4101c2060275df7542c0422b88d6bfa2750d50bb7abcccce82c7a6</sha256>
+		<sha256>1263941717eebd52f6710a2018b4d6776343d4e34088be49bb460a73da3df1cb</sha256>
 		
 		<tags>
 			<tag>stable</tag>
@@ -30,13 +30,13 @@
 		<type>plugin</type>
 		<folder>system</folder>
 		<client>site</client>
-		<version>0.5.1</version>
+		<version>1.0.0</version>
 		<infourl>https://github.com/BkrBkr/AuthCaptchaForJoomla</infourl>
 
 		<downloads>
-			<downloadurl type="full" format="zip">https://github.com/BkrBkr/AuthCaptchaForJoomla/releases/download/0.5.1/authcaptcha.zip</downloadurl>
+			<downloadurl type="full" format="zip">https://github.com/BkrBkr/AuthCaptchaForJoomla/releases/download/1.0.0/authcaptcha.zip</downloadurl>
 		</downloads>
-		<sha256>591424fe2b4101c2060275df7542c0422b88d6bfa2750d50bb7abcccce82c7a6</sha256>
+		<sha256>1263941717eebd52f6710a2018b4d6776343d4e34088be49bb460a73da3df1cb</sha256>
 		
 		<tags>
 			<tag>stable</tag>
