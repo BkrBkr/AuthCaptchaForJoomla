@@ -98,7 +98,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 * - Initialize the captcha plugin
 	 * - Validate the captcha response if necessary
 	 */
-	public function onAfterRoute()
+	public function onAfterDispatch()
 	{
 
 		if ($this->getCaptchaPluginIncludeRequired()) {
@@ -147,6 +147,11 @@ class PlgSystemAuthCaptcha extends JPlugin
 
 			$body = $this->app->getBody();
 
+			if($this->matchLoginPlaceholder($body, 0, $body)){
+				$this->app->setBody($body);
+				return;
+			}
+		
 			$formRegex = "/(?<=<form)(?<formAll>[^>]+>(?<formBody>.*?))(?=<\/\s*form\s*>)/si";
 			$passwordFieldRegex = "/<\s*input[^>]+type\s*=[\"']+password/si";
 			if (preg_match_all($formRegex, $body, $matches, PREG_OFFSET_CAPTURE)) {
@@ -220,7 +225,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 	private function matchLoginAdmin($formBody, $offset, &$body)
 	{
 		if ($this->version::MAJOR_VERSION == 4) {
-			$adminRegex = "/(?<match><input\s*name=\"passwd\"\s*id=\"mod-login-password\"[^>]+>\s*<\/div>\s*<\/div>)/si";
+			$adminRegex = "/(?<match><input\s*name=\"passwd\"\s*id=\"mod-login-password\"[^>]+>\s*<button.*?<\/button>\s*<\/div>\s*<\/div>)/si";
 			$praefix = "\n<div class=\"form-group\">\n<div class=\"input-group\">\n";
 			$suffix = "\n</div>\n</div>\n";
 			$scale = 1.21;
@@ -234,6 +239,20 @@ class PlgSystemAuthCaptcha extends JPlugin
 		return $this->addCaptcha($adminRegex, $formBody, $offset, $body, $praefix, $suffix, $scale);
 	}
 
+	/**
+	 *  Adds the captcha control by placeholder
+	 */
+	private function matchLoginPlaceholder($formBody, $offset, &$body)
+	{
+		
+		$adminRegex = '/<form .*?>.*?(?<match>{authCaptchaPlaceholder}).*?<\/form/si';
+		$praefix = "";
+		$suffix = "";
+		$scale = 1.21;
+		
+		return $this->addCaptcha($adminRegex, $formBody, $offset, $body, $praefix, $suffix, $scale,strlen('{authCaptchaPlaceholder}'));
+	}
+	
 	/**
 	 * Login-Fallback
 	 */
@@ -250,14 +269,13 @@ class PlgSystemAuthCaptcha extends JPlugin
 	/**
 	 * Adds a captcha challenge to $body at the position specified by $regex and $offset
 	 */
-	private function addCaptcha($regex, $formBody, $offset, &$body, $praefix, $suffix, $scale)
+	private function addCaptcha($regex, $formBody, $offset, &$body, $praefix, $suffix, $scale,$replaceLen=0)
 	{
 		if (preg_match($regex, $formBody, $match, PREG_OFFSET_CAPTURE)) {
-
-			$position = strlen($match["match"][0]) + $match["match"][1];
-
+			
+			$position = strlen($match["match"][0]) + $match["match"][1] -$replaceLen;
 			$captcha = $this->getCaptcha($scale);
-			$body = substr_replace($body, $praefix . $captcha . $suffix, $position + $offset, 0);
+			$body = substr_replace($body, $praefix . $captcha . $suffix, $position + $offset,$replaceLen);
 
 			return true;
 		}
