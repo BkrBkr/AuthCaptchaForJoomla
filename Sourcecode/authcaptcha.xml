@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension type="plugin" version="3.4" group="system" method="upgrade">
     <name>PLG_SYSTEM_AUTHCAPTCHA</name>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <creationDate>2019-08-28</creationDate>
 	<description>PLG_SYSTEM_AUTHCAPTCHA_PLGDETAILSDESCRIPTION</description>
 	
