@@ -104,7 +104,10 @@ class PlgSystemAuthCaptcha extends JPlugin
 		if ($this->getCaptchaPluginIncludeRequired()) {
 			$this->loadLanguage();
 			PluginHelper::importPlugin('captcha');
-			
+			if ($this->version::MAJOR_VERSION == 4) {
+				$this->app->loadDocument();
+			}
+			$this->app->triggerEvent('onInit');
 
 			$option = $this->request->getCmd('option');
 			$task = $this->request->getCmd('task');
@@ -119,13 +122,6 @@ class PlgSystemAuthCaptcha extends JPlugin
 					$this->redirect();
 				}
 			}
-		}
-	}
-	 
-	public function onAfterDispatch()
-	{
-		if ($this->getCaptchaPluginIncludeRequired()) {
-			$this->app->triggerEvent('onInit');
 		}
 	}
 
