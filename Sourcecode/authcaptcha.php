@@ -98,19 +98,18 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 * - Initialize the captcha plugin
 	 * - Validate the captcha response if necessary
 	 */
-	public function onAfterDispatch()
+	public function onAfterRoute()
 	{
 
 		if ($this->getCaptchaPluginIncludeRequired()) {
 			$this->loadLanguage();
 			PluginHelper::importPlugin('captcha');
-			$this->app->triggerEvent('onInit');
+			
 
 			$option = $this->request->getCmd('option');
 			$task = $this->request->getCmd('task');
-
+			
 			if (($option == 'com_users' && $task == 'user.login') || ($option == 'com_login' && $task == 'login')) {
-
 				try {
 					$res = $this->app->triggerEvent("onCheckAnswer");
 					if (empty($res) || empty($res[0]) || !$res[0]) {
@@ -120,6 +119,13 @@ class PlgSystemAuthCaptcha extends JPlugin
 					$this->redirect();
 				}
 			}
+		}
+	}
+	 
+	public function onAfterDispatch()
+	{
+		if ($this->getCaptchaPluginIncludeRequired()) {
+			$this->app->triggerEvent('onInit');
 		}
 	}
 
@@ -147,10 +153,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 
 			$body = $this->app->getBody();
 
-			if($this->matchLoginPlaceholder($body, 0, $body)){
-				$this->app->setBody($body);
-				return;
-			}
+		
 		
 			$formRegex = "/(?<=<form)(?<formAll>[^>]+>(?<formBody>.*?))(?=<\/\s*form\s*>)/si";
 			$passwordFieldRegex = "/<\s*input[^>]+type\s*=[\"']+password/si";
@@ -166,7 +169,8 @@ class PlgSystemAuthCaptcha extends JPlugin
 							$offset = $matches["formBody"][$idx][1];
 							$formBody = $matches["formBody"][$idx][0];
 
-							$this->matchLoginModule($formBody, $offset, $body) ||
+							$this->matchLoginPlaceholder($formBody, $offset, $body) ||
+								$this->matchLoginModule($formBody, $offset, $body) ||
 								$this->matchLoginComponent($formBody, $offset, $body) ||
 								$this->matchLoginAdmin($formBody, $offset, $body) ||
 								$this->matchLoginFallback($formBody, $offset, $body);
@@ -245,10 +249,10 @@ class PlgSystemAuthCaptcha extends JPlugin
 	private function matchLoginPlaceholder($formBody, $offset, &$body)
 	{
 		
-		$adminRegex = '/<form .*?>.*?(?<match>{authCaptchaPlaceholder}).*?<\/form/si';
+		$adminRegex = '/(?<match>{authCaptchaPlaceholder})/si';
 		$praefix = "";
 		$suffix = "";
-		$scale = 1.21;
+		$scale = null;
 		
 		return $this->addCaptcha($adminRegex, $formBody, $offset, $body, $praefix, $suffix, $scale,strlen('{authCaptchaPlaceholder}'));
 	}
