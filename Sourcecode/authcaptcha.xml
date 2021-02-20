@@ -2,12 +2,12 @@
 <extension type="plugin" version="3.4" group="system" method="upgrade">
     <name>PLG_SYSTEM_AUTHCAPTCHA</name>
     <version>1.0.2</version>
-    <creationDate>2020-02-20</creationDate>
+    <creationDate>2021-02-20</creationDate>
 	<description>PLG_SYSTEM_AUTHCAPTCHA_PLGDETAILSDESCRIPTION</description>
 	
 	<author>Björn Kremer</author>
     <license>http://www.gnu.org/licenses/gpl</license>
-    <copyright>Copyright (C) 2020 Björn Kremer</copyright>
+    <copyright>Copyright (C) 2021 Björn Kremer</copyright>
     
     
     <files>
