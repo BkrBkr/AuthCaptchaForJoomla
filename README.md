@@ -14,9 +14,9 @@ Joomla 4 ready!
 # Installation
 
 1. [Configure and enable a captcha-plugin in Joomla (e.g. recaptcha)](https://docs.joomla.org/J3.x:Google_ReCaptcha)
-2. Install and enable this plugin.
-3. Clear Joomla cache if enabled
-
+2. Install and enable this plugin
+3. If needed, edit your `mod_login` form at `templates/your_template/html/mod_login` and place the `{authCaptchaPlaceholder}` tag where you want the reCaptha to display _(ideally, after the form and before the Login button)_. Tag should be place within the `<form></form>` tags. The plugin will try to this automatically but in case it fails, use this option
+4. Clear Joomla cache if enabled
 
 # Troubleshooting
 
