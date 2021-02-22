@@ -16,7 +16,7 @@ Joomla 4 ready!
 3. Clear Joomla cache if enabled
 
 ## Custom Captcha position
-You can customize the position of the captcha. Just add the placeholder {authCaptchaPlaceholder} at desired position. It has to be placed within the html <form> tag of the login form.
+You can customize the position of the captcha. Just add the placeholder {authCaptchaPlaceholder} at the desired position. It has to be placed within the html \<form> tag of the login form.
 
 
 # Troubleshooting
@@ -24,6 +24,11 @@ You can customize the position of the captcha. Just add the placeholder {authCap
 **The captcha is not working and I can't login.**
 
 You can disable the plugin via the database. Please refer to the Joomla documentation or google.
+
+**The captcha is not working with my custom template**
+
+Please try the placeholder tag. If it's not working feel free to open an Issue.
+
 
 # Support
 
