@@ -130,10 +130,10 @@ class PlgSystemAuthCaptcha extends JPlugin
 
 					$res = $captcha->checkAnswer($answer);
 					if ($res !== true) {
-						$this->redirect();
+						$this->redirect(Text::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'));
 					}
 				} catch (Exception $e) {
-					$this->redirect();
+					$this->redirect($e->getMessage());
 				}
 			}
 		}
@@ -143,13 +143,13 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 * Cancel the request if the captcha challenge failed.
 	 * Reload the page and display an error message
 	 */
-	private function redirect()
+	private function redirect($message)
 	{
 
-		$this->app->enqueueMessage(Text::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'), 'error');
+		$this->app->enqueueMessage($message, 'error');
 
 		$this->app->redirect(Uri::current());
-		jexit(Text::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'));
+		jexit($message);
 		die("Invalid Captcha"); //Should not be reached
 	}
 
