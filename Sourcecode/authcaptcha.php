@@ -3,7 +3,7 @@
 /**
  * @Copyright
  * @package        AuthCaptchaForJoomla
- * @author         Björn Kremer 
+ * @author         Björn Kremer
  *
  * @license        GNU/GPL
  *	 AuthCaptcha for Joomla (OR short AuthCaptcha) - Is a Joomla system plugin that adds a captcha challenge to all joomla login-forms to prevent bruteforce attacks
@@ -105,14 +105,30 @@ class PlgSystemAuthCaptcha extends JPlugin
 			$this->loadLanguage();
 			$this->app->loadDocument();
 			$captcha = $this->getCaptcha();
-			$captcha->initialise('authCaptcha');
+
+			try
+			{
+				$captcha->initialise('authCaptcha');
+			}
+			catch (RuntimeException $e)
+			{
+				$this->app->enqueueMessage($e->getMessage());
+			}
 
 			$option = $this->request->getCmd('option');
 			$task = $this->request->getCmd('task');
-			
+
 			if (($option == 'com_users' && $task == 'user.login') || ($option == 'com_login' && $task == 'login')) {
 				try {
-					$res = $captcha->checkAnswer($this->request->get('authCaptcha', null, 'RAW'));
+
+					$answer = $this->request->get('authCaptcha', '', 'RAW');
+
+					if (!is_string($answer))
+					{
+						$answer = '';
+					}
+
+					$res = $captcha->checkAnswer($answer);
 					if ($res !== true) {
 						$this->redirect();
 					}
@@ -147,8 +163,8 @@ class PlgSystemAuthCaptcha extends JPlugin
 
 			$body = $this->app->getBody();
 
-		
-		
+
+
 			$formRegex = "/(?<=<form)(?<formAll>[^>]+>(?<formBody>.*?))(?=<\/\s*form\s*>)/si";
 			$passwordFieldRegex = "/<\s*input[^>]+type\s*=[\"']+password/si";
 			if (preg_match_all($formRegex, $body, $matches, PREG_OFFSET_CAPTURE)) {
@@ -242,15 +258,15 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function matchLoginPlaceholder($formBody, $offset, &$body)
 	{
-		
+
 		$adminRegex = '/(?<match>{authCaptchaPlaceholder})/si';
 		$praefix = "";
 		$suffix = "";
 		$scale = null;
-		
+
 		return $this->addCaptcha($adminRegex, $formBody, $offset, $body, $praefix, $suffix, $scale,strlen('{authCaptchaPlaceholder}'));
 	}
-	
+
 	/**
 	 * Login-Fallback
 	 */
@@ -270,7 +286,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 	private function addCaptcha($regex, $formBody, $offset, &$body, $praefix, $suffix, $scale,$replaceLen=0)
 	{
 		if (preg_match($regex, $formBody, $match, PREG_OFFSET_CAPTURE)) {
-			
+
 			$position = strlen($match["match"][0]) + $match["match"][1] -$replaceLen;
 			$captcha = $this->getCaptchaHtml($scale);
 			$body = substr_replace($body, $praefix . $captcha . $suffix, $position + $offset,$replaceLen);
@@ -289,19 +305,28 @@ class PlgSystemAuthCaptcha extends JPlugin
 		{
 			$this->captcha = Captcha::getInstance($this->config->get('captcha'));
 		}
-		
+
 		return $this->captcha;
 	}
 
 	/**
-	 * Generates the captcha control 
+	 * Generates the captcha control
 	 */
 	private function getCaptchaHtml($scale)
 	{
-		$captcha = $this->getCaptcha()->display('authCaptcha', 'authCaptcha');
+		try
+		{
+			$captcha = $this->getCaptcha()->display('authCaptcha', 'authCaptcha');
+		}
+		catch (RuntimeException $e)
+		{
+			$this->app->enqueueMessage($e->getMessage());
+
+			return '';
+		}
 
 		if (empty($captcha))
-			throw new UnexpectedValueException('Captcha generation failed');
+			return '';
 
 		if (strpos($captcha, "g-recaptcha") !== false && strpos($captcha, "invisible") === false && $scale != null) {
 			$captcha = str_replace("></div>", ' style="transform:scale(' . $scale . ');-webkit-transform:scale(' . $scale . ');transform-origin:0 0;-webkit-transform-origin:0 0;max-width:100px;max-height:80px;"></div>', $captcha);
