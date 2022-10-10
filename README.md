@@ -7,7 +7,7 @@ Joomla has no built-in BruteForce protection. This Joomla System plugin fills th
 * It works with the default Joomla login-component, the default Joomla login-module and on the administrator page. 
 * Tested with the recaptcha-plugin shipped by Joomla.
 
-Joomla 4 ready!
+Joomla 4 ready! Joomla 3 support will end on 01.01.2023.
 
 # Installation
 
