@@ -25,14 +25,11 @@ You can customize the position of the captcha. Just add the placeholder {authCap
 
 You can disable the plugin via the database. Please refer to the Joomla documentation or google.
 
-**The captcha is not working with my custom template**
-
-Please try the placeholder tag. If it's not working feel free to open an Issue.
-
 
 # Support
 
-Please open an issue!
+Please open an issue.
+Please understand that I can't support layout problems of custom Joomla designs.
 
 # Disclaimer
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.

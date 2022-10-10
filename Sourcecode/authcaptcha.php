@@ -7,7 +7,7 @@
  *
  * @license        GNU/GPL
  *	 AuthCaptcha for Joomla (OR short AuthCaptcha) - Is a Joomla system plugin that adds a captcha challenge to all joomla login-forms to prevent bruteforce attacks
- *   Copyright (C) 2021 Björn Kremer
+ *   Copyright (C) 2022 Björn Kremer
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 	protected $autoloadLanguage = true;
 	private $version;
 	private $captcha;
+	private $preparedCaptcha;
 
 
 	function __construct(&$subject, $config)
@@ -93,7 +94,18 @@ class PlgSystemAuthCaptcha extends JPlugin
 		return ($option == "com_login" && $view == "login");
 	}
 
-
+	public function onBeforeRender(){
+		if ($this->getCaptchaPluginIncludeRequired()) {
+			try
+			{
+				$this->preparedCaptcha = $this->getCaptcha()->display('authCaptcha', 'authCaptcha');
+			}
+			catch (RuntimeException $e)
+			{
+				$this->app->enqueueMessage($e->getMessage());
+			}
+		}
+	}
 	/**
 	 * - Initialize the captcha plugin
 	 * - Validate the captcha response if necessary
@@ -289,6 +301,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 
 			$position = strlen($match["match"][0]) + $match["match"][1] -$replaceLen;
 			$captcha = $this->getCaptchaHtml($scale);
+			
 			$body = substr_replace($body, $praefix . $captcha . $suffix, $position + $offset,$replaceLen);
 
 			return true;
@@ -314,17 +327,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function getCaptchaHtml($scale)
 	{
-		try
-		{
-			$captcha = $this->getCaptcha()->display('authCaptcha', 'authCaptcha');
-		}
-		catch (RuntimeException $e)
-		{
-			$this->app->enqueueMessage($e->getMessage());
-
-			return '';
-		}
-
+		$captcha=$this->preparedCaptcha;
 		if (empty($captcha))
 			return '';
 
