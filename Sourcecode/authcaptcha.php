@@ -3,7 +3,7 @@
 /**
  * @Copyright
  * @package        AuthCaptchaForJoomla
- * @author         Björn Kremer 
+ * @author         Björn Kremer
  *
  * @license        GNU/GPL
  *	 AuthCaptcha for Joomla (OR short AuthCaptcha) - Is a Joomla system plugin that adds a captcha challenge to all joomla login-forms to prevent bruteforce attacks
@@ -26,12 +26,11 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\PluginHelper;
-use Joomla\Event\Dispatcher;
 use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Version;
-use Joomla\CMS\Cache\Cache;
+use Joomla\CMS\Captcha\Captcha;
 
 class PlgSystemAuthCaptcha extends JPlugin
 {
@@ -40,6 +39,7 @@ class PlgSystemAuthCaptcha extends JPlugin
 	private $config;
 	protected $autoloadLanguage = true;
 	private $version;
+	private $captcha;
 
 
 	function __construct(&$subject, $config)
@@ -103,23 +103,37 @@ class PlgSystemAuthCaptcha extends JPlugin
 
 		if ($this->getCaptchaPluginIncludeRequired()) {
 			$this->loadLanguage();
-			PluginHelper::importPlugin('captcha');
-			if ($this->version::MAJOR_VERSION == 4) {
-				$this->app->loadDocument();
+			$this->app->loadDocument();
+			$captcha = $this->getCaptcha();
+
+			try
+			{
+				$captcha->initialise('authCaptcha');
 			}
-			$this->app->triggerEvent('onInit');
+			catch (RuntimeException $e)
+			{
+				$this->app->enqueueMessage($e->getMessage());
+			}
 
 			$option = $this->request->getCmd('option');
 			$task = $this->request->getCmd('task');
-			
+
 			if (($option == 'com_users' && $task == 'user.login') || ($option == 'com_login' && $task == 'login')) {
 				try {
-					$res = $this->app->triggerEvent("onCheckAnswer");
-					if (empty($res) || empty($res[0]) || !$res[0]) {
-						$this->redirect();
+
+					$answer = $this->request->get('authCaptcha', '', 'RAW');
+
+					if (!is_string($answer))
+					{
+						$answer = '';
+					}
+
+					$res = $captcha->checkAnswer($answer);
+					if ($res !== true) {
+						$this->redirect(Text::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'));
 					}
 				} catch (Exception $e) {
-					$this->redirect();
+					$this->redirect($e->getMessage());
 				}
 			}
 		}
@@ -129,13 +143,13 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 * Cancel the request if the captcha challenge failed.
 	 * Reload the page and display an error message
 	 */
-	private function redirect()
+	private function redirect($message)
 	{
 
-		$this->app->enqueueMessage(Text::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'), 'error');
+		$this->app->enqueueMessage($message, 'error');
 
 		$this->app->redirect(Uri::current());
-		jexit(Text::_('PLG_SYSTEM_AUTHCAPTCHA_INVALIDCAPTCHA'));
+		jexit($message);
 		die("Invalid Captcha"); //Should not be reached
 	}
 
@@ -149,8 +163,8 @@ class PlgSystemAuthCaptcha extends JPlugin
 
 			$body = $this->app->getBody();
 
-		
-		
+
+
 			$formRegex = "/(?<=<form)(?<formAll>[^>]+>(?<formBody>.*?))(?=<\/\s*form\s*>)/si";
 			$passwordFieldRegex = "/<\s*input[^>]+type\s*=[\"']+password/si";
 			if (preg_match_all($formRegex, $body, $matches, PREG_OFFSET_CAPTURE)) {
@@ -244,15 +258,15 @@ class PlgSystemAuthCaptcha extends JPlugin
 	 */
 	private function matchLoginPlaceholder($formBody, $offset, &$body)
 	{
-		
+
 		$adminRegex = '/(?<match>{authCaptchaPlaceholder})/si';
 		$praefix = "";
 		$suffix = "";
 		$scale = null;
-		
+
 		return $this->addCaptcha($adminRegex, $formBody, $offset, $body, $praefix, $suffix, $scale,strlen('{authCaptchaPlaceholder}'));
 	}
-	
+
 	/**
 	 * Login-Fallback
 	 */
@@ -272,9 +286,9 @@ class PlgSystemAuthCaptcha extends JPlugin
 	private function addCaptcha($regex, $formBody, $offset, &$body, $praefix, $suffix, $scale,$replaceLen=0)
 	{
 		if (preg_match($regex, $formBody, $match, PREG_OFFSET_CAPTURE)) {
-			
+
 			$position = strlen($match["match"][0]) + $match["match"][1] -$replaceLen;
-			$captcha = $this->getCaptcha($scale);
+			$captcha = $this->getCaptchaHtml($scale);
 			$body = substr_replace($body, $praefix . $captcha . $suffix, $position + $offset,$replaceLen);
 
 			return true;
@@ -283,18 +297,40 @@ class PlgSystemAuthCaptcha extends JPlugin
 	}
 
 	/**
-	 * Generates the captcha control 
+	 * Returns an instance of Joomla\CMS\Captcha\Captcha
 	 */
-	private function getCaptcha($scale)
+	private function getCaptcha()
 	{
-		$captcha = $this->app->triggerEvent('onDisplay');
-
-		if (empty($captcha) || empty($captcha[0]))
-			throw new UnexpectedValueException('Captcha generation failed');
-
-		if (strpos($captcha[0], "g-recaptcha") !== false && strpos($captcha[0], "invisible") === false && $scale != null) {
-			$captcha[0] = str_replace("></div>", ' style="transform:scale(' . $scale . ');-webkit-transform:scale(' . $scale . ');transform-origin:0 0;-webkit-transform-origin:0 0;max-width:100px;max-height:80px;"></div>', $captcha[0]);
+		if ($this->captcha === null)
+		{
+			$this->captcha = Captcha::getInstance($this->config->get('captcha'));
 		}
-		return $captcha[0];
+
+		return $this->captcha;
+	}
+
+	/**
+	 * Generates the captcha control
+	 */
+	private function getCaptchaHtml($scale)
+	{
+		try
+		{
+			$captcha = $this->getCaptcha()->display('authCaptcha', 'authCaptcha');
+		}
+		catch (RuntimeException $e)
+		{
+			$this->app->enqueueMessage($e->getMessage());
+
+			return '';
+		}
+
+		if (empty($captcha))
+			return '';
+
+		if (strpos($captcha, "g-recaptcha") !== false && strpos($captcha, "invisible") === false && $scale != null) {
+			$captcha = str_replace("></div>", ' style="transform:scale(' . $scale . ');-webkit-transform:scale(' . $scale . ');transform-origin:0 0;-webkit-transform-origin:0 0;max-width:100px;max-height:80px;"></div>', $captcha);
+		}
+		return $captcha;
 	}
 }
